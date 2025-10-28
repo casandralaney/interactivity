@@ -1,0 +1,100 @@
+---
+title: "writing_functions"
+author: "Casandra Laney"
+date: "2025-10-23"
+output: github_document
+---
+
+```{r}
+library(tidyverse)
+library(rvest)
+
+set.seed(1)
+```
+
+
+```{r}
+x_vec = rnorm(25, mean = 5, sd = 3)
+
+(x_vec - mean(x_vec)) / sd(x_vec)
+```
+
+Write a function to compute z-scores.
+
+```{r}
+
+z_scores = function(x) {
+  
+  if (!is.numeric(x)) {
+    stop("The input x should be numeric")
+  }
+  
+  if (length(x) < 5) {
+    stop("only compute z scores when the input has 5 or more numbers")
+  }
+  z = (x - mean(x)) / sd(x)
+  
+  z
+  
+}
+
+```
+
+
+```{r}
+z_scores(x = x_vec)
+```
+
+
+```{r}
+mean_and_sd = function(x) {
+  
+  if (!is.numeric(x)) {
+    stop("Argument x should be numeric")
+  } else if (length(x) == 1) {
+    stop("Cannot be computed for length 1 vectors")
+  }
+  
+  mean_x = mean(x)
+  sd_x = sd(x)
+
+  tibble(
+    mean = mean_x, 
+    sd = sd_x
+  )
+}
+
+sim_data = tibble(
+  x = rnorm(30, mean = 2, sd = 3)
+)
+
+sim_data |> 
+  summarize(
+    mu_hat = mean(x),
+    sigma_hat = sd(x)
+  )
+
+
+```
+
+
+```{r}
+sim_mean_sd = function(n, mu = 2, sigma = 3) {
+  
+  sim_data = tibble(
+    x = rnorm(n, mean = mu, sd = sigma),
+  )
+  
+  sim_data |> 
+    summarize(
+      mu_hat = mean(x),
+      sigma_hat = sd(x)
+    )
+}
+```
+
+Import function
+```{r}
+
+```
+
