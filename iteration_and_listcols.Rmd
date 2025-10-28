@@ -141,3 +141,54 @@ listcol_df |>
   unnest(summary)
 ```
 
+example 
+
+```{r}
+nsduh_table <- function(html, table_num) {
+  
+  table = 
+    html |> 
+    html_table() |> 
+    nth(table_num) |>
+    slice(-1) |> 
+    select(-contains("P Value")) |>
+    pivot_longer(
+      -State,
+      names_to = "age_year", 
+      values_to = "percent") |>
+    separate(age_year, into = c("age", "year"), sep = "\\(") |>
+    mutate(
+      year = str_replace(year, "\\)", ""),
+      percent = str_replace(percent, "[a-c]$", ""),
+      percent = as.numeric(percent)) |>
+    filter(!(State %in% c("Total U.S.", "Northeast", "Midwest", "South", "West")))
+  
+  table
+}
+```
+
+
+using for loop
+```{r}
+
+nsduh_url = "http://samhda.s3-us-gov-west-1.amazonaws.com/s3fs-public/field-uploads/2k15StateFiles/NSDUHsaeShortTermCHG2015.htm"
+
+nsduh_html = read_html(nsduh_url)
+
+output = vector("list", 3)
+
+for (i in c(1, 4, 5)) {
+  output[[i]] = nsduh_table(nsduh_html, i)
+}
+
+nsduh_results = bind_rows(output)
+```
+
+
+using map
+```{r}
+nsduh_results = 
+  map(c(1, 4, 5), nsduh_table, html = nsduh_html) |> 
+  bind_rows()
+```
+

@@ -505,7 +505,7 @@ output</code></pre>
 rnorm</code></pre>
 <pre><code>## function (n, mean = 0, sd = 1) 
 ## .Call(C_rnorm, n, mean, sd)
-## &lt;bytecode: 0x000001918e2700e0&gt;
+## &lt;bytecode: 0x0000017968314660&gt;
 ## &lt;environment: namespace:stats&gt;</code></pre>
 <p>did this really work?</p>
 <pre class="r"><code>pull(listcol_df, name)</code></pre>
@@ -594,6 +594,44 @@ rnorm</code></pre>
 ## 2 b     -0.0324 4.36 
 ## 3 c     10.0    0.162
 ## 4 d     -2.90   1.05</code></pre>
+<p>example</p>
+<pre class="r"><code>nsduh_table &lt;- function(html, table_num) {
+  
+  table = 
+    html |&gt; 
+    html_table() |&gt; 
+    nth(table_num) |&gt;
+    slice(-1) |&gt; 
+    select(-contains(&quot;P Value&quot;)) |&gt;
+    pivot_longer(
+      -State,
+      names_to = &quot;age_year&quot;, 
+      values_to = &quot;percent&quot;) |&gt;
+    separate(age_year, into = c(&quot;age&quot;, &quot;year&quot;), sep = &quot;\\(&quot;) |&gt;
+    mutate(
+      year = str_replace(year, &quot;\\)&quot;, &quot;&quot;),
+      percent = str_replace(percent, &quot;[a-c]$&quot;, &quot;&quot;),
+      percent = as.numeric(percent)) |&gt;
+    filter(!(State %in% c(&quot;Total U.S.&quot;, &quot;Northeast&quot;, &quot;Midwest&quot;, &quot;South&quot;, &quot;West&quot;)))
+  
+  table
+}</code></pre>
+<p>using for loop</p>
+<pre class="r"><code>nsduh_url = &quot;http://samhda.s3-us-gov-west-1.amazonaws.com/s3fs-public/field-uploads/2k15StateFiles/NSDUHsaeShortTermCHG2015.htm&quot;
+
+nsduh_html = read_html(nsduh_url)
+
+output = vector(&quot;list&quot;, 3)
+
+for (i in c(1, 4, 5)) {
+  output[[i]] = nsduh_table(nsduh_html, i)
+}
+
+nsduh_results = bind_rows(output)</code></pre>
+<p>using map</p>
+<pre class="r"><code>nsduh_results = 
+  map(c(1, 4, 5), nsduh_table, html = nsduh_html) |&gt; 
+  bind_rows()</code></pre>
 </div>
 
 
