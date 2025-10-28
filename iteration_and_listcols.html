@@ -481,6 +481,120 @@ output</code></pre>
 ##    mean    sd
 ##   &lt;dbl&gt; &lt;dbl&gt;
 ## 1 -2.90  1.05</code></pre>
+<p>MAP variants</p>
+<pre class="r"><code>map_dfr(list_norms, mean_and_sd, .id = &quot;sample&quot;)</code></pre>
+<pre><code>## # A tibble: 4 × 3
+##   sample    mean    sd
+##   &lt;chr&gt;    &lt;dbl&gt; &lt;dbl&gt;
+## 1 a       3.19   0.913
+## 2 b      -0.0324 4.36 
+## 3 c      10.0    0.162
+## 4 d      -2.90   1.05</code></pre>
+<pre class="r"><code>map_dbl(list_norms, median)</code></pre>
+<pre><code>##          a          b          c          d 
+##  3.3596755 -0.2748345 10.0228773 -2.9488283</code></pre>
+<div id="list-columns" class="section level2">
+<h2>List Columns</h2>
+<p>Try to put my list into a df</p>
+<pre class="r"><code>listcol_df =
+  tibble(
+    name = c(&quot;a&quot;, &quot;b&quot;, &quot;c&quot;, &quot;d&quot;),
+    sample = list_norms
+  )
+
+rnorm</code></pre>
+<pre><code>## function (n, mean = 0, sd = 1) 
+## .Call(C_rnorm, n, mean, sd)
+## &lt;bytecode: 0x000001918e2700e0&gt;
+## &lt;environment: namespace:stats&gt;</code></pre>
+<p>did this really work?</p>
+<pre class="r"><code>pull(listcol_df, name)</code></pre>
+<pre><code>## [1] &quot;a&quot; &quot;b&quot; &quot;c&quot; &quot;d&quot;</code></pre>
+<pre class="r"><code>pull(listcol_df, sample)</code></pre>
+<pre><code>## $a
+##  [1] 2.3735462 3.1836433 2.1643714 4.5952808 3.3295078 2.1795316 3.4874291
+##  [8] 3.7383247 3.5757814 2.6946116 4.5117812 3.3898432 2.3787594 0.7853001
+## [15] 4.1249309 2.9550664 2.9838097 3.9438362 3.8212212 3.5939013
+## 
+## $b
+##  [1]  4.5948869  3.9106815  0.3728249 -9.9467585  3.0991287 -0.2806437
+##  [7] -0.7789775 -7.3537619 -2.3907503  2.0897078  6.7933978 -0.5139386
+## [13]  1.9383581 -0.2690252 -6.8852978 -2.0749728 -1.9714498 -0.2965670
+## [19]  5.5001269  3.8158787
+## 
+## $c
+##  [1]  9.967095  9.949328 10.139393 10.111333  9.862249  9.858501 10.072916
+##  [8] 10.153707  9.977531 10.176222 10.079621  9.877595 10.068224  9.774127
+## [15] 10.286605 10.396080  9.926556  9.791173 10.113944  9.972989
+## 
+## $d
+##  [1] -0.5983822 -3.0392400 -2.3102606 -2.9719978 -3.7432732 -2.8112077
+##  [7] -4.8049586 -1.5344451 -2.8467467 -0.8273883 -2.5244905 -3.7099464
+## [13] -2.3892736 -3.9340976 -4.2536334 -2.7085538 -3.4432919 -2.9988946
+## [19] -2.9256587 -3.5895209</code></pre>
+<p>Can I apply ‘mean_and_sd’??</p>
+<pre class="r"><code>mean_and_sd(pull(listcol_df, sample)[[1]])</code></pre>
+<pre><code>## # A tibble: 1 × 2
+##    mean    sd
+##   &lt;dbl&gt; &lt;dbl&gt;
+## 1  3.19 0.913</code></pre>
+<pre class="r"><code>mean_and_sd(pull(listcol_df, sample)[[2]])</code></pre>
+<pre><code>## # A tibble: 1 × 2
+##      mean    sd
+##     &lt;dbl&gt; &lt;dbl&gt;
+## 1 -0.0324  4.36</code></pre>
+<pre class="r"><code>mean_and_sd(pull(listcol_df, sample)[[3]])</code></pre>
+<pre><code>## # A tibble: 1 × 2
+##    mean    sd
+##   &lt;dbl&gt; &lt;dbl&gt;
+## 1  10.0 0.162</code></pre>
+<pre class="r"><code>mean_and_sd(pull(listcol_df, sample)[[4]])</code></pre>
+<pre><code>## # A tibble: 1 × 2
+##    mean    sd
+##   &lt;dbl&gt; &lt;dbl&gt;
+## 1 -2.90  1.05</code></pre>
+<p>iterate using ‘map’</p>
+<pre class="r"><code>map(pull(listcol_df, sample), mean_and_sd)</code></pre>
+<pre><code>## $a
+## # A tibble: 1 × 2
+##    mean    sd
+##   &lt;dbl&gt; &lt;dbl&gt;
+## 1  3.19 0.913
+## 
+## $b
+## # A tibble: 1 × 2
+##      mean    sd
+##     &lt;dbl&gt; &lt;dbl&gt;
+## 1 -0.0324  4.36
+## 
+## $c
+## # A tibble: 1 × 2
+##    mean    sd
+##   &lt;dbl&gt; &lt;dbl&gt;
+## 1  10.0 0.162
+## 
+## $d
+## # A tibble: 1 × 2
+##    mean    sd
+##   &lt;dbl&gt; &lt;dbl&gt;
+## 1 -2.90  1.05</code></pre>
+<p>adding a column…</p>
+<pre class="r"><code>listcol_df = 
+  listcol_df |&gt;
+  mutate(
+    summary = map(sample, mean_and_sd)
+  )</code></pre>
+<pre class="r"><code>listcol_df |&gt;
+  select(-sample) |&gt;
+  unnest(summary)</code></pre>
+<pre><code>## # A tibble: 4 × 3
+##   name     mean    sd
+##   &lt;chr&gt;   &lt;dbl&gt; &lt;dbl&gt;
+## 1 a      3.19   0.913
+## 2 b     -0.0324 4.36 
+## 3 c     10.0    0.162
+## 4 d     -2.90   1.05</code></pre>
+</div>
 
 
 

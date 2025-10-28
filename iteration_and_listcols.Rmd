@@ -75,3 +75,69 @@ output = map(list_norms, mean_and_sd)
 output
 ```
 
+
+MAP variants
+```{r}
+map_dfr(list_norms, mean_and_sd, .id = "sample")
+
+map_dbl(list_norms, median)
+```
+
+## List Columns
+
+Try to put my list into a df
+
+```{r}
+
+listcol_df =
+  tibble(
+    name = c("a", "b", "c", "d"),
+    sample = list_norms
+  )
+
+rnorm
+```
+
+did this really work?
+
+```{r}
+pull(listcol_df, name)
+pull(listcol_df, sample)
+
+```
+
+Can I apply 'mean_and_sd'??
+
+```{r}
+mean_and_sd(pull(listcol_df, sample)[[1]])
+mean_and_sd(pull(listcol_df, sample)[[2]])
+mean_and_sd(pull(listcol_df, sample)[[3]])
+mean_and_sd(pull(listcol_df, sample)[[4]])
+
+```
+
+
+iterate using 'map'
+
+```{r}
+map(pull(listcol_df, sample), mean_and_sd)
+```
+
+adding a column...
+
+```{r}
+listcol_df = 
+  listcol_df |>
+  mutate(
+    summary = map(sample, mean_and_sd)
+  )
+```
+
+
+
+```{r}
+listcol_df |>
+  select(-sample) |>
+  unnest(summary)
+```
+
