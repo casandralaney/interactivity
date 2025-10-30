@@ -108,17 +108,21 @@ sim_data |>
     ##    <dbl>     <dbl>
     ## 1   2.12      2.22
 
+Import function
+
+We wrote this in a code chunk last time; now its being sourced.
+
 ``` r
-sim_mean_sd = function(n, mu = 2, sigma = 3) {
-  
-  sim_data = tibble(
-    x = rnorm(n, mean = mu, sd = sigma),
-  )
-  
-  sim_data |> 
-    summarize(
-      mu_hat = mean(x),
-      sigma_hat = sd(x)
-    )
-}
+source("source/sim_mean_sd.R")
 ```
+
+run function
+
+``` r
+sim_mean_sd(n=30)
+```
+
+    ## # A tibble: 1 × 2
+    ##   mu_hat sigma_hat
+    ##    <dbl>     <dbl>
+    ## 1   2.26      3.09

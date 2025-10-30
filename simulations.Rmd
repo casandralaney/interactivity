@@ -1,0 +1,11 @@
+---
+title: "simulation"
+author: "Casandra Laney"
+date: "2025-10-30"
+output: github_document
+---
+
+```{r}
+sim_mean
+```
+

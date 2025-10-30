@@ -192,3 +192,84 @@ nsduh_results =
   bind_rows()
 ```
 
+
+
+```{r}
+nsduh_results = 
+  tibble(
+    name = c("marj", "cocaine", "heroine"),
+    number = c(1, 4, 5)) |> 
+  mutate(table = map(number, nsduh_table, html = nsduh_html)) |> 
+  unnest(cols = "table")
+```
+
+## Look at weather data
+
+```{r}
+
+library(p8105.datasets)
+data("weather_df")
+
+```
+
+
+```{r}
+weather_df |>
+  filter(name == "CentralPark_NY") |>
+  ggplot(aes(x = tmin, y = tmax)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+```
+
+let's do a regression
+
+```{r}
+weather_df |>
+  filter(name == "CentralPark_NY") |>
+  lm(tmax ~ tmin, data = _)
+
+weather_df |>
+  filter(name == "Molokai_HI") |>
+  lm(tmax ~ tmin, data = _)
+
+weather_df |>
+  filter(name == "Waterhole_WA") |>
+  lm(tmax ~ tmin, data = _)
+```
+
+Let's iterate differently
+```{r}
+weather_nest =
+  weather_df |>
+  nest(data = date:tmin)
+```
+
+```{r}
+lm(tmax ~ tmin, data = pull(weather_nest, data)[[1]])
+lm(tmax ~ tmin, data = pull(weather_nest, data)[[2]])
+lm(tmax ~ tmin, data = pull(weather_nest, data)[[3]])
+
+```
+
+do this using map
+
+```{r}
+weather_lm = function(df) {
+  
+  lm(tmax ~ tmin, data = df)
+  
+}
+
+
+map(pull(weather_nest, data), weather_lm)
+```
+
+
+```{r}
+weather_nest |>
+  mutate(
+    lm_fits = map(data, weather_lm)
+    )
+  
+```
+
